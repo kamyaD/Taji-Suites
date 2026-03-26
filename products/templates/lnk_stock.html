@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bar Stock{% endblock %}
+
+{% block content %}
+
+<div class="col-12 p-4">
+
+    <h3 class="mb-4">🍺 LNK Stock Management</h3>
+
+    <!-- 🔹 ADD FORM -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            Add Stock
+        </div>
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label>Item</label>
+                        {{ form.item }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label>Opening Stock</label>
+                        {{ form.opening_stock }}
+                    </div>
+                     <div class="col-md-4 mb-2">
+                        <label>Add</label>
+                        {{ form.add }}
+                    </div>
+
+                  
+
+                    
+                </div>
+
+                <div class="row">
+                   
+                    <div class="col-md-4 mb-2">
+                        <label>Sold</label>
+                        {{ form.sold }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label>Rate</label>
+                        {{ form.rate }}
+                    </div>
+
+                    
+                    <div class="col-md-4 mb-2">
+                        <label>Date</label>
+                        {{ form.date }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success mt-2">
+                    Save Stock
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- 🔹 STOCK TABLE -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            Stock Records
+        </div>
+
+        <div class="card-body table-responsive">
+
+            <table class="table table-bordered table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Item</th>
+                        <th>Opening</th>
+                        <th>Add</th>
+                        <th>Total</th>
+                        <th>Sold</th>
+                        <th>Closing</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                        <!-- <th>Cost</th>
+                        <th>Profit</th> -->
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr>
+                        <td>{{ stock.date }}</td>
+                        <td>{{ stock.item }}</td>
+                        <td>{{ stock.opening_stock }}</td>
+                        <td>{{ stock.add }}</td>
+                        <td>{{ stock.total }}</td>
+                        <td>{{ stock.sold }}</td>
+                        <td>{{ stock.closing_stock }}</td>
+                        <td>{{ stock.rate }}</td>
+                        <td>{{ stock.amount }}</td>
+                        
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center">
+                            No stock records available
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

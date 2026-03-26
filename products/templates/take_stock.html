@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Take Stock</h3>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Department</th>
+                    <th>Location</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                <tr>
+                    <td>{{ form.instance.name }}</td>
+                    <td>{{ form.instance.category }}</td>
+                    <td>{{ form.instance.department }}</td>
+                    <td>{{ form.instance.location }}</td>
+                    <td>{{ form.stock }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-primary">Update Stock</button>
+
+        
+    </form>
+</div>
+<div class="container mt-4">
+
+    <div class="card shadow-sm p-4">
+        <h4 class="mb-4">➕ Add New Product</h4>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Row 1 -->
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Product Name</label>
+                    {{ create_form.name|add_class:"form-control" }}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Category</label>
+                    {{ create_form.category|add_class:"form-control" }}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Price (KES)</label>
+                    {{ create_form.price|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="row g-3 mt-1">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Stock</label>
+                    {{ create_form.stock|add_class:"form-control" }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Department</label>
+                    {{ create_form.department|add_class:"form-select" }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Location</label>
+                    {{ create_form.location|add_class:"form-select" }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Product Image</label>
+                    {{ create_form.image|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <!-- Button -->
+            <div class="mt-4 d-flex justify-content-end">
+                <button type="submit" name="add_product" class="btn btn-success px-4">
+                    ➕ Add Product
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+</div>
+{% endblock %}

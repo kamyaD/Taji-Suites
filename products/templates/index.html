@@ -1,0 +1,428 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taji Suites</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        .hero-section {
+            background: url("{% static 'img/home.jpg' %}") center/cover no-repeat;
+            min-height: 80vh;
+            color: white;
+            position: relative;
+        }
+        .hero-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top:0;
+            left:0;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        .feature-card {
+            border: none;
+            transition: 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+            <img src="/static/img/logo.png" alt="Taji Suites Logo" height="40" class="me-2">
+            <span class="fs-4 fw-bold">Taji Suites</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link active" href="#about">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="#rooms">Rooms</a></li>
+                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">login</a></li>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}" class="btn btn-outline-light">Logout</a>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+{% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Hero Section -->
+<section class="hero-section d-flex align-items-center">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content text-center py-5">
+        <h1 class="display-4 fw-bold">Welcome to Taji Suites</h1>
+        <p class="lead">Your comfort is our promise — luxury stays in the heart of Kisumu</p>
+        <a href="#rooms" class="btn btn-primary btn-lg">Book now</a>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="py-5">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-4">About Taji Suites</h2>
+        <p class="text-center">
+            Experience exceptional hospitality in a serene and vibrant environment.
+            Taji Suites offers comfortable accommodation, modern dining, and personalised services for both leisure and business travellers.
+        </p>
+    </div>
+</section>
+
+<!-- Rooms / Features -->
+<section id="rooms" class="py-5 bg-light">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-4">Rooms & Accommodations</h2>
+        <div class="row g-4">
+            <div class="col-md-3 d-flex">
+                <div class="card feature-card w-100 d-flex flex-column">
+                    <img src="{% static 'img/room.jpg' %}" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Deluxe Room</h5>
+                        <p class="card-text flex-grow-1">Imagine sleeping in and enjoying the quality service of a team of professionals out to make your weekend memorable. 😊😎
+Then come take a break at Taji Suites..</p>
+                        <hr>
+                        <div class="text-center mt-auto">
+                            <a href="#" class="btn btn-primary btn-sm"
+                                data-service="Deluxe Room"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#bookingModal">
+                                Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex">
+                <div class="card feature-card w-100 d-flex flex-column">
+                    <img src="{% static 'img/conference.jpg' %}" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Conference Facilities</h5>
+                        <p class="card-text flex-grow-1">We have ample space and a well-lit room to host meetings and gatherings. You do not have to worry about finding the perfect venue for your events because Taji Suites is the place to be.👍😊</p>
+                        <hr>
+                        <div class="text-center mt-auto">
+                            <a href="#" class="btn btn-primary btn-sm"
+                            data-service="Conference Facilities"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#bookingModal"
+                            >Book Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex">
+                <div class="card feature-card w-100 d-flex flex-column">
+                    <img src="{% static 'img/Bar.jpg' %}" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Rooftop and Garden Bar</h5>
+                        <p class="card-text flex-grow-1">Sip something sweet 🍹and soak up the sun on our gorgeous rooftop😎
+If you think this is amazing, wait until you see the sunset up here; simply magical🤩</p>
+                            <hr>
+                        <div class="text-center mt-auto">
+                            <a href="#" class="btn btn-primary btn-sm"
+                            data-service="Rooftop and Garden Bar"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#bookingModal"
+                            >Reserve Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex">
+                <div class="card feature-card w-100 d-flex flex-column">
+                    <img src="{% static 'img/delivery.jpg' %}" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Office Delivery</h5>
+                        <p class="card-text flex-grow-1">Get food delivered at the comfort of your workspace within Kisumu City😋. Order and receive in minutes. Don't worry, Taji suites got you😉. Call Now!</p>
+                        <hr>
+                        <div class="text-center mt-auto">
+                            <a href="#" class="btn btn-primary btn-sm"
+                            data-service="Office Delivery"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#bookingModal"
+                            >Order Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</section>
+
+<!-- Services Section -->
+<section id="services" class="py-5">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-4">Services & Amenities</h2>
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="p-4 shadow-sm rounded">
+                    <h5>24/7 Reception</h5>
+                    <p>Constant support for check-in, requests, and concierge services.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 shadow-sm rounded">
+                    <h5>Restaurant & Bar</h5>
+                    <p>Enjoy local and international cuisine with premium drinks.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 shadow-sm rounded">
+                    <h5>Free WiFi</h5>
+                    <p>High speed internet throughout the property for your convenience.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="py-5 bg-light">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-4">Contact & Location</h2>
+        <p class="text-center">For reservations or inquiries:</p>
+        <p class="text-center">
+            📍 Kisumu, Kenya<br>
+            📞 +254 796387418<br>
+            ✉️ info@tajisuites.co.ke
+        </p>
+        <div class="d-flex justify-content-center">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.8141549540323!2d34.76668857713904!3d-0.08279209970081428!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182aa32799697351%3A0xf943f4c8dceb99ef!2sTaji%20Suites!5e0!3m2!1sen!2ske!4v1774282672028!5m2!1sen!2ske" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div>
+</section>
+    <!-- Booking Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        
+        <div class="modal-header">
+            <h5 class="modal-title">Book Now</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+            <form method="POST" action="{% url 'booking-create' %}">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label>Your Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Phone</label>
+                <input type="text" name="phone" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Service</label>
+                <select name="service" id="serviceInput" class="form-control" required>
+                    <option value="">-- Select Service --</option>
+                    <option value="rooms">Rooms</option>
+                    <option value="conference">Conference</option>
+                    <option value="roof_top">Roof Top</option>
+                    <option value="bar">Garden Bar</option>
+                    <option value="office_delivery">Office Delivery</option>
+                </select>
+            </div>
+            <div class="mb-3 d-none" id="roomTypeContainer">
+                <label>Room Type</label>
+                <select name="room_type" id="roomType" class="form-control">
+                    <option value="">-- Select Room Type --</option>
+                    <option value="deluxe">Deluxe Room (KES 3,500/night)</option>
+                    <option value="double">Double Room (KES 3,000/night)</option>
+                    <option value="standard">Standard Room (KES 2,500/night)</option>
+                </select>
+            </div>
+            <div class="mb-3 d-none" id="DoubleRoomNumberContainer">
+                <label>Double Room Number</label>
+                <select name="double_number" id="DoubleRoomNumber" class="form-control">
+                    <option value="">-- Select Room Number --</option>
+                    <option value="101">Room 101</option>
+                    <option value="102">Room 102</option>
+                    <option value="103">Room 103</option>
+                </select>
+            </div>
+            <div class="mb-3 d-none" id="DeluxRoomNumberContainer">
+                <label>Delux Room Number</label>
+                <select name="delux_number" id="DeluxRoomNumber" class="form-control">
+                    <option value="">-- Select Room Number --</option>
+                    <option value="201">Room 201</option>
+                    <option value="202">Room 202</option>
+                    <option value="203">Room 203</option>
+                </select>
+            </div>
+             <div class="mb-3 d-none" id="StandardRoomNumberContainer">
+                <label>Standard Room Number</label>
+                <select name="standard_number" id="StandardRoomNumber" class="form-control">
+                    <option value="">-- Select Room Number --</option>
+                    <option value="104">Room 104</option>
+                    <option value="105">Room 105</option>
+                    <option value="106">Room 106</option>
+                </select>
+            </div>
+
+            <div class="mb-3 d-none" id="dateRangeContainer">
+                <label>Check-in Date</label>
+                <input type="date" name="check_in" id="checkIn" class="form-control">
+            </div>
+
+            <div class="mb-3 d-none" id="dateRangeContainer2">
+                <label>Check-out Date</label>
+                <input type="date" name="check_out" id="checkOut" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+                Submit Booking
+            </button>
+            </form>
+        </div>
+
+        </div>
+    </div>
+    </div>
+
+<!-- Footer -->
+<footer class="py-3 bg-dark text-light text-center">
+    <small>&copy; 2026 Taji Suites. All rights reserved.</small>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/scripts.js' %}"></script>
+<script>
+
+// Initialize
+document.addEventListener("DOMContentLoaded", function () {
+    let firstBtn = document.querySelector('[id^="btn-"]');
+
+    if (firstBtn) {
+        let dept = firstBtn.id.replace('btn-', '');
+        filterDepartment(dept);
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const serviceSelect = document.getElementById("serviceInput");
+    const roomType = document.getElementById("roomType");
+
+    // Containers
+    const roomTypeContainer = document.getElementById("roomTypeContainer");
+
+    const doubleRoomContainer = document.getElementById("DoubleRoomNumberContainer");
+    const deluxeRoomContainer = document.getElementById("DeluxRoomNumberContainer");
+    const standardRoomContainer = document.getElementById("StandardRoomNumberContainer");
+
+    const checkInContainer = document.getElementById("dateRangeContainer");
+    const checkOutContainer = document.getElementById("dateRangeContainer2");
+
+    const checkIn = document.getElementById("checkIn");
+    const checkOut = document.getElementById("checkOut");
+
+    // Hide all room number dropdowns
+    function hideAllRoomNumbers() {
+        doubleRoomContainer.classList.add("d-none");
+        deluxeRoomContainer.classList.add("d-none");
+        standardRoomContainer.classList.add("d-none");
+
+        // Reset values
+        document.getElementById("DoubleRoomNumber").value = "";
+        document.getElementById("DeluxRoomNumber").value = "";
+        document.getElementById("StandardRoomNumber").value = "";
+    }
+
+    // Handle service change
+    serviceSelect.addEventListener("change", function () {
+        if (this.value === "rooms") {
+            roomTypeContainer.classList.remove("d-none");
+
+            checkInContainer.classList.remove("d-none");
+            checkOutContainer.classList.remove("d-none");
+
+            checkIn.setAttribute("required", "required");
+            checkOut.setAttribute("required", "required");
+
+        } else {
+            roomTypeContainer.classList.add("d-none");
+            hideAllRoomNumbers();
+
+            checkInContainer.classList.add("d-none");
+            checkOutContainer.classList.add("d-none");
+
+            roomType.value = "";
+            checkIn.value = "";
+            checkOut.value = "";
+
+            checkIn.removeAttribute("required");
+            checkOut.removeAttribute("required");
+        }
+    });
+
+    // Handle room type change
+    roomType.addEventListener("change", function () {
+        hideAllRoomNumbers();
+
+        if (this.value === "double") {
+            doubleRoomContainer.classList.remove("d-none");
+        } 
+        else if (this.value === "deluxe") {
+            deluxeRoomContainer.classList.remove("d-none");
+        } 
+        else if (this.value === "standard") {
+            standardRoomContainer.classList.remove("d-none");
+        }
+    });
+
+    // Validate dates
+    checkOut.addEventListener("change", function () {
+        if (checkIn.value && checkOut.value < checkIn.value) {
+            alert("Check-out date must be after check-in date");
+            checkOut.value = "";
+        }
+    });
+
+});
+
+// setTimeout(function () {
+//     let alerts = document.querySelectorAll(".alert");
+//     alerts.forEach(alert => {
+//         alert.classList.remove("show");
+//     });
+// }, 3000);
+
+</script>
+
+</body>
+</html>

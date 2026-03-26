@@ -1,0 +1,115 @@
+let cart = {};
+    let total = 0;
+
+    function addToCart(id, name, price) {
+        if (!cart[id]) {
+            cart[id] = {name: name, price: price, qty: 1};
+        } else {
+            cart[id].qty += 1;
+        }
+
+        renderCart();
+    }
+
+    function increaseQty(id) {
+        cart[id].qty += 1;
+        renderCart();
+    }
+
+    function decreaseQty(id) {
+        cart[id].qty -= 1;
+
+        if (cart[id].qty <= 0) {
+            delete cart[id]; // ❌ remove item
+        }
+
+        renderCart();
+    }
+
+    function renderCart() {
+        let cartDiv = document.getElementById("cartItems");
+        cartDiv.innerHTML = "";
+        total = 0;
+
+        for (let id in cart) {
+            let item = cart[id];
+            let subtotal = item.qty * item.price;
+            total += subtotal;
+
+            cartDiv.innerHTML += `
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        <small>KES ${item.price}</small>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                onclick="decreaseQty('${id}')">-</button>
+
+                        <span class="mx-2">${item.qty}</span>
+
+                        <button type="button"
+                                class="btn btn-sm btn-success"
+                                onclick="increaseQty('${id}')">+</button>
+
+                    </div>
+
+                    <div>
+                        <strong>KES ${subtotal}</strong>
+                    </div>
+
+                </div>
+
+                <input type="hidden" name="product_${id}" value="${item.qty}">
+            `;
+        }
+
+        document.getElementById("total").innerText = total;
+    }
+
+
+
+let activeDept = 'lnk'; 
+function filterDepartment(dept) {
+    activeDept = dept;
+
+    // Remove active from all buttons safely
+    ['lnk','bar','kitchen','rooms','all'].forEach(d => {
+        let btn = document.getElementById('btn-' + d);
+        if (btn) btn.classList.remove('active');
+    });
+
+    // Add active to selected button safely
+    let activeBtn = document.getElementById('btn-' + dept);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    filterAndSearch();
+}
+
+function searchProducts() {
+    filterAndSearch();
+}
+
+function filterAndSearch() {
+    let input = document.getElementById('productSearch').value.toLowerCase();
+    let products = document.querySelectorAll('.product-item');
+
+    products.forEach(p => {
+        let name = p.querySelector('h6').textContent.toLowerCase();
+        let category = p.dataset.category.toLowerCase();
+        let department = p.dataset.department;
+
+        // Show if matches search AND department
+        if (name.includes(input) || category.includes(input)) {
+            p.style.display = "block";
+        } else {
+            p.style.display = "none";
+        }
+    });
+}
+
+
