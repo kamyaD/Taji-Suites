@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}POS{% endblock %}
 
 {% block content %}
@@ -18,20 +18,21 @@
              data-category="{{ product.category }}">
 
             <div class="card product-card shadow-sm"
-                 onclick="addToCart('{{ product.id }}', '{{ product.name }}', {{ product.price }})">
+                 onclick="addToCart('{{ product.id }}', '{{ product.item }}', {{ product.rate }})"
 
                 {% if product.image %}
                     <img src="{{ product.image.url }}" class="card-img-top product-img">
                 {% else %}
-                    <img src="https://via.placeholder.com/150" class="card-img-top product-img">
+                    <img src="{% static 'img/place_holder.jpeg' %}" class="card-img-top product-img">
+                    
                 {% endif %}
 
                 <div class="card-body text-center">
-                    <h6>{{ product.name }}</h6>
-                    <span class="text-muted">{{ product.category }}</span><br>
-                    <span class="text-muted">{{ product.department }}</span><br>
-                    <span class="text-muted">{{ product.stock }} in stock</span><br>
-                    <strong>KES {{ product.price }}</strong>
+                    <h6>{{ product.item }}</h6>
+                    <!-- <span class="text-muted">{{ product.category }}</span><br>
+                    <span class="text-muted">{{ product.department }}</span><br> -->
+                    <span class="text-muted">{{ product.closing_stock }} in stock</span><br>
+                    <strong>KES {{ product.rate }}</strong>
                 </div>
 
             </div>

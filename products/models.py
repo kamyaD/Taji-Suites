@@ -1,6 +1,10 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+from user.models import User
 
 # Create your models here.
 
@@ -40,7 +44,7 @@ class BarStockSheet(models.Model):
         ('shots/tots', 'Shots/Tots'),
         ('ciders/others', 'Ciders/Others')
     ]
-
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     item = models.CharField(max_length=100)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     opening_stock = models.IntegerField(blank=True, null=True)
@@ -54,7 +58,8 @@ class BarStockSheet(models.Model):
     sales_cost = models.FloatField(editable=False, null=True, blank=True)
     profit = models.FloatField(editable=False, null=True, blank=True)
     date = models.DateField(default=timezone.now)
-
+    department = models.CharField(max_length=20, choices=[('bar', 'Bar')], default='bar')
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
 
     class Meta:
         unique_together = ('item', 'date')
@@ -73,7 +78,7 @@ class BarStockSheet(models.Model):
         ).order_by('-date').first()
 
         # If previous exists, enforce opening stock = previous closing
-        if previous:
+        if previous.opening_stock >0:
             self.opening_stock = previous.closing_stock
 
         # If no previous and opening not set → default to 0
@@ -117,6 +122,9 @@ class LNKStockSheet(models.Model):
     sales_cost = models.FloatField(editable=False, null=True, blank=True)
     # profit = models.FloatField(editable=False, null=True, blank=True)
     date = models.DateField(default=timezone.now)
+    department = models.CharField(max_length=20, choices=[('lnk', 'Kitchen')], default='lnk')
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
+
 
     class Meta:
         unique_together = ('item', 'date')
@@ -179,6 +187,9 @@ class KitchenStockSheet(models.Model):
     sales_cost = models.FloatField(editable=False, null=True, blank=True)
     # profit = models.FloatField(editable=False, null=True, blank=True)
     date = models.DateField(default=timezone.now)
+    department = models.CharField(max_length=20, choices=[('kitchen', 'Kitchen')], default='kitchen')
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
+
 
     class Meta:
         unique_together = ('item', 'date')
@@ -271,10 +282,29 @@ class Sale(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+# class SaleItem(models.Model):
+#     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="items")
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+#     quantity = models.IntegerField()
+#     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+#     @property
+#     def subtotal(self):
+#         return self.quantity * self.price
+
 class SaleItem(models.Model):
-    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
+    sale = models.ForeignKey(
+        'Sale',
+        on_delete=models.CASCADE,
+        related_name='items'   # ✅ THIS IS REQUIRED
+    )
+
+    # Generic relation
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True,blank=True)
+    product = GenericForeignKey('content_type', 'object_id')
+
+    quantity = models.IntegerField(null=True,blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
     @property
