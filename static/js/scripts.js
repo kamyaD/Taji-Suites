@@ -3,7 +3,7 @@ let cart = {};
 
     function addToCart(id, name, price) {
         if (!cart[id]) {
-            cart[id] = {name: name, price: price, qty: 1};
+            cart[id] = {item: name, rate: price, qty: 1};
         } else {
             cart[id].qty += 1;
         }
@@ -33,33 +33,26 @@ let cart = {};
 
         for (let id in cart) {
             let item = cart[id];
-            let subtotal = item.qty * item.price;
+
+            let subtotal = item.qty * item.rate;
             total += subtotal;
 
             cartDiv.innerHTML += `
                 <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
 
                     <div>
-                        <strong>${item.name}</strong><br>
-                        <small>KES ${item.price}</small>
+                        <strong>${item.item}</strong><br>
+                        <small>KES ${item.rate.toFixed(2)}</small>
                     </div>
 
                     <div class="d-flex align-items-center">
-
-                        <button type="button"
-                                class="btn btn-sm btn-danger"
-                                onclick="decreaseQty('${id}')">-</button>
-
+                        <button type="button" class="btn btn-sm btn-danger" onclick="decreaseQty('${id}')">-</button>
                         <span class="mx-2">${item.qty}</span>
-
-                        <button type="button"
-                                class="btn btn-sm btn-success"
-                                onclick="increaseQty('${id}')">+</button>
-
+                        <button type="button" class="btn btn-sm btn-success" onclick="increaseQty('${id}')">+</button>
                     </div>
 
                     <div>
-                        <strong>KES ${subtotal}</strong>
+                        <strong>KES ${subtotal.toFixed(2)}</strong>
                     </div>
 
                 </div>
@@ -68,10 +61,8 @@ let cart = {};
             `;
         }
 
-        document.getElementById("total").innerText = total;
-    }
-
-
+        document.getElementById("total").innerText = total.toFixed(2);
+    }   
 
 let activeDept = 'lnk'; 
 function filterDepartment(dept) {

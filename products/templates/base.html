@@ -34,9 +34,10 @@
                                 onclick="filterDepartment('lnk')" id="btn-lnk">LNK</button>
                     {% endif %}
 
-                    {% if user.department == 'bar' %}
-                        <button class="btn btn-outline-light mx-1"
-                                onclick="filterDepartment('bar')" id="btn-bar">Bar</button>
+                    {% if user.department == 'bar' and user.role == 'waiter' %}
+                        <a href="{% url 'pos' %}" class="btn btn-outline-light mx-1 active">Products</a>
+                        <!-- <button class="btn btn-outline-light mx-1"
+                                 onclick="filterDepartment('bar')" id="btn-bar">Bar</button> -->
                     {% endif %}
 
                     {% if user.department == 'kitchen' %}

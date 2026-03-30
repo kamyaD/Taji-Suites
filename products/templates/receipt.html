@@ -46,7 +46,7 @@
     <div class="receipt-header text-center">
         <img src="{% static 'img/logo.png' %}" 
              alt="Taji Suites Logo" 
-             style="height:60px; margin-bottom:10px;">
+             style="height:60px; margin-bottom:10px;" href="{% url 'home' %}">
         <h4>Taji Suites</h4>
         <small>Kisumu, Kenya</small>
     </div>
@@ -72,7 +72,7 @@
         <tbody>
             {% for item in sale.items.all %}
             <tr>
-                <td>{{ item.product.name }}</td>
+                <td>{{ item.product.item }}</td>
                 <td>{{ item.quantity }}</td>
                 <td class="text-end">KES {{ item.subtotal }}</td>
             </tr>
@@ -101,6 +101,7 @@
         <button onclick="window.print()" class="btn btn-dark btn-sm">
             Print Receipt
         </button>
+        <a href="{% url 'pos' %}" class="btn btn-secondary btn-sm">Back to Home</a>
     </div>
 
 </div>

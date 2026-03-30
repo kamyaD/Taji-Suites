@@ -9,7 +9,7 @@ class User(AbstractUser):
         ('admin', 'Admin'),
         ('shop attendant', 'Shop Attendant'),
         ('supervisor', 'Supervisor'),
-        ('weighter', 'Weighter'),
+        ('waiter', 'waiter'),
         ('chef', 'Chef'),
     ]
 
