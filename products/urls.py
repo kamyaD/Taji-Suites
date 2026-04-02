@@ -21,6 +21,7 @@ urlpatterns = [
     path('generate-kitchen-stock/', generate_today_kitchen_stock, name='generate_kitchen_stock'),
     path('generate-lnk-stock/', generate_today_lnk_stock, name='generate_lnk_stock'),
     path('bar-reports/', bar_reports, name='bar_reports'),
+    path('close-sale/<int:sale_id>/', close_sale, name='close_sale'),
 
     # path('mpesa/callback/', mpesa_callback, name='mpesa-callback'),
 ]

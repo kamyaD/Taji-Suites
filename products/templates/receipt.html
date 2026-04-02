@@ -8,6 +8,7 @@
         body {
             background: #f4f6f9;
         }
+
         .receipt-box {
             max-width: 400px;
             margin: auto;
@@ -17,24 +18,30 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             font-size: 14px;
         }
-        .receipt-header {
-            text-align: center;
-        }
-        .receipt-header h4 {
-            margin: 0;
-            font-weight: bold;
-        }
+
         .divider {
             border-top: 1px dashed #ccc;
             margin: 10px 0;
         }
+
         .total {
             font-size: 18px;
             font-weight: bold;
         }
+
+        /* 👇 IMPORTANT */
+        .page-break {
+            page-break-before: always;
+        }
+
         @media print {
             body { background: white; }
             .no-print { display: none; }
+
+            .receipt-box {
+                box-shadow: none;
+                border-radius: 0;
+            }
         }
     </style>
 </head>
@@ -44,23 +51,26 @@
 
     <!-- HEADER -->
     <div class="receipt-header text-center">
-        <img src="{% static 'img/logo.png' %}" 
+        <!-- <img src="{% static 'img/logo.png' %}" 
              alt="Taji Suites Logo" 
-             style="height:60px; margin-bottom:10px;" href="{% url 'home' %}">
-        <h4>Taji Suites</h4>
+             style="height:60px; margin-bottom:10px;" href="{% url 'home' %}"> -->
+        <h2>TAJI SUITES</h2>
+        <h2>P.O. BOX 1768-40100</h2>
         <small>Kisumu, Kenya</small>
+        <small>Tell: 0796387418</small>
     </div>
 
     <div class="divider"></div>
 
     <!-- DETAILS -->
-    <p><strong>Receipt #:</strong> {{ sale.id }}</p>
-    <p><strong>Date:</strong> {{ sale.date|date:"Y-m-d H:i" }}</p>
+    <strong>Bill Number #:</strong> {{ sale.id }}
+    <br><strong>Table Number #:</strong>0
+    <br><strong>Bill Date:</strong> {{ sale.date|date:"Y-m-d H:i" }}
 
     <div class="divider"></div>
 
     <!-- ITEMS -->
-    <h6>Items</h6>
+    <!-- <h6>Items</h6> -->
     <table class="table table-sm">
         <thead>
             <tr>
@@ -92,8 +102,9 @@
 
     <!-- FOOTER -->
     <p class="text-center">
-        Thank you! 🙏<br>
-        Welcome again
+        <center><h4>PAYBILL:880100</h4></center>
+        <center><h4>ACCOUNT No:937883</h4></center>
+        <center><small>Served by: {{ sales_person.username }}</small></center>
     </p>
 
     <!-- PRINT BUTTON -->
@@ -101,8 +112,55 @@
         <button onclick="window.print()" class="btn btn-dark btn-sm">
             Print Receipt
         </button>
-        <a href="{% url 'pos' %}" class="btn btn-secondary btn-sm">Back to Home</a>
+        {% if sale.department == 'lnk' %}
+            <a href="{% url 'lnk_stock_page' %}" class="btn btn-secondary btn-sm">Back to Home</a>
+        {% endif %}
+        {% if sale.department == 'bar' %}
+            <a href="{% url 'bar_stock_page' %}" class="btn btn-secondary btn-sm">Back to Home</a>
+        {% endif %}
     </div>
+
+</div>
+<!-- ================= SECOND RECEIPT ================= -->
+<div class="receipt-box page-break">
+
+    <div class="receipt-header text-center">
+        <h4>CAPTAIN ORDER</h4>
+    </div>
+
+    <div class="divider"></div>
+
+    <strong>Captain Order:</strong> {{ sale.id }}
+    <br><strong>Bill Number:</strong> {{ sale.id }}
+    <br><strong>Order Time:</strong> {{ sale.date|date:"Y-m-d H:i" }}
+    <br><strong>Selling Point:</strong> Bar
+
+    <div class="divider"></div>
+
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th class="text-end">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in sale.items.all %}
+            <tr>
+                <td>{{ item.product.item }}</td>
+                <td>{{ item.quantity }}</td>
+                <td class="text-end">{{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <p>
+        <strong>Served by:</strong> {{ sales_person.username }}
+    </p>
 
 </div>
 
