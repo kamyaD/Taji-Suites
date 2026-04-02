@@ -71,38 +71,40 @@ class BarStockSheet(models.Model):
             raise ValidationError("Sold cannot be negative")
 
     def save(self, *args, **kwargs):
-        # 🔹 RULE 4: Get previous day's record
+
+        # 🔹 Get previous record
         previous = BarStockSheet.objects.filter(
             item=self.item,
             date__lt=self.date
         ).order_by('-date').first()
 
-        # If previous exists, enforce opening stock = previous closing
-        if previous.opening_stock >0:
+        # 🔹 Opening stock logic
+        if previous:
             self.opening_stock = previous.closing_stock
-
-        # If no previous and opening not set → default to 0
-        if self.opening_stock is None:
+        elif self.opening_stock is None:
             self.opening_stock = 0
 
-        # 🔹 RULE 3: If no add → treat as 0
+        # 🔹 Normalize values (VERY IMPORTANT)
         add_value = self.add if self.add else 0
+        sold_value = self.sold if self.sold else 0
+        rate_value = self.rate if self.rate else 0
 
-        # 🔹 RULE 1: total = opening_stock + add
+        # 🔹 Total stock
         self.total = self.opening_stock + add_value
 
-        # 🔹 VALIDATION: sold cannot exceed total
-        if self.sold > self.total:
+        # 🔹 Validation
+        if sold_value > self.total:
             raise ValidationError("Sold cannot be greater than total stock")
 
-        # 🔹 RULE 2: closing_stock = total - sold
-        self.closing_stock = self.total - self.sold
+        # 🔹 Closing stock
+        self.closing_stock = self.total - sold_value
 
-        # 🔹 RULE 5: amount = sold * rate
-        self.amount = self.sold * self.rate
-        self.sales_cost = self.sold * self.unit_cost
-        # Profit calculation
-        self.profit = self.amount - self.sales_cost
+        # 🔹 Amount
+        self.amount = sold_value * rate_value
+
+        # (Optional future)
+        # sales_cost = sold_value * (self.unit_cost or 0)
+        # self.profit = self.amount - sales_cost
 
         super().save(*args, **kwargs)
 
@@ -122,7 +124,7 @@ class LNKStockSheet(models.Model):
     sales_cost = models.FloatField(editable=False, null=True, blank=True)
     # profit = models.FloatField(editable=False, null=True, blank=True)
     date = models.DateField(default=timezone.now)
-    department = models.CharField(max_length=20, choices=[('lnk', 'Kitchen')], default='lnk')
+    department = models.CharField(max_length=20, choices=[('lnk', 'LNK')], default='lnk')
     image = models.ImageField(upload_to='products/', blank=True, null=True)
 
 
@@ -136,38 +138,40 @@ class LNKStockSheet(models.Model):
             raise ValidationError("Sold cannot be negative")
 
     def save(self, *args, **kwargs):
-        # 🔹 RULE 4: Get previous day's record
-        previous = BarStockSheet.objects.filter(
+
+        # 🔹 Get previous record
+        previous = LNKStockSheet.objects.filter(
             item=self.item,
             date__lt=self.date
         ).order_by('-date').first()
 
-        # If previous exists, enforce opening stock = previous closing
+        # 🔹 Opening stock logic
         if previous:
             self.opening_stock = previous.closing_stock
-
-        # If no previous and opening not set → default to 0
-        if self.opening_stock is None:
+        elif self.opening_stock is None:
             self.opening_stock = 0
 
-        # 🔹 RULE 3: If no add → treat as 0
+        # 🔹 Normalize values (VERY IMPORTANT)
         add_value = self.add if self.add else 0
+        sold_value = self.sold if self.sold else 0
+        rate_value = self.rate if self.rate else 0
 
-        # 🔹 RULE 1: total = opening_stock + add
+        # 🔹 Total stock
         self.total = self.opening_stock + add_value
 
-        # 🔹 VALIDATION: sold cannot exceed total
-        if self.sold > self.total:
+        # 🔹 Validation
+        if sold_value > self.total:
             raise ValidationError("Sold cannot be greater than total stock")
 
-        # 🔹 RULE 2: closing_stock = total - sold
-        self.closing_stock = self.total - self.sold
+        # 🔹 Closing stock
+        self.closing_stock = self.total - sold_value
 
-        # 🔹 RULE 5: amount = sold * rate
-        self.amount = self.sold * self.rate
-        # self.sales_cost = self.sold * self.unit_cost
-        # Profit calculation
-        # self.profit = self.amount - self.sales_cost
+        # 🔹 Amount
+        self.amount = sold_value * rate_value
+
+        # (Optional future)
+        # sales_cost = sold_value * (self.unit_cost or 0)
+        # self.profit = self.amount - sales_cost
 
         super().save(*args, **kwargs)
 
@@ -200,39 +204,42 @@ class KitchenStockSheet(models.Model):
         if self.sold < 0:
             raise ValidationError("Sold cannot be negative")
 
+
     def save(self, *args, **kwargs):
-        # 🔹 RULE 4: Get previous day's record
-        previous = BarStockSheet.objects.filter(
+
+        # 🔹 Get previous record
+        previous = KitchenStockSheet.objects.filter(
             item=self.item,
             date__lt=self.date
         ).order_by('-date').first()
 
-        # If previous exists, enforce opening stock = previous closing
+        # 🔹 Opening stock logic
         if previous:
             self.opening_stock = previous.closing_stock
-
-        # If no previous and opening not set → default to 0
-        if self.opening_stock is None:
+        elif self.opening_stock is None:
             self.opening_stock = 0
 
-        # 🔹 RULE 3: If no add → treat as 0
+        # 🔹 Normalize values (VERY IMPORTANT)
         add_value = self.add if self.add else 0
+        sold_value = self.sold if self.sold else 0
+        rate_value = self.rate if self.rate else 0
 
-        # 🔹 RULE 1: total = opening_stock + add
+        # 🔹 Total stock
         self.total = self.opening_stock + add_value
 
-        # 🔹 VALIDATION: sold cannot exceed total
-        if self.sold > self.total:
+        # 🔹 Validation
+        if sold_value > self.total:
             raise ValidationError("Sold cannot be greater than total stock")
 
-        # 🔹 RULE 2: closing_stock = total - sold
-        self.closing_stock = self.total - self.sold
+        # 🔹 Closing stock
+        self.closing_stock = self.total - sold_value
 
-        # 🔹 RULE 5: amount = sold * rate
-        self.amount = self.sold * self.rate
-        # self.sales_cost = self.sold * self.unit_cost
-        # Profit calculation
-        # self.profit = self.amount - self.sales_cost
+        # 🔹 Amount
+        self.amount = sold_value * rate_value
+
+        # (Optional future)
+        # sales_cost = sold_value * (self.unit_cost or 0)
+        # self.profit = self.amount - sales_cost
 
         super().save(*args, **kwargs)
 
@@ -278,19 +285,14 @@ class Customer(models.Model):
 
 
 class Sale(models.Model):
+    sales_person = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales')
+    department = models.CharField(max_length=20, choices=[('bar', 'Bar'), ('lnk', 'LNK'), ('kitchen', 'Kitchen'), ('rooms', 'Rooms')], default='bar')
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     date = models.DateTimeField(auto_now_add=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    status = models.CharField(max_length=20, choices=[('open', 'Open'), ('closed', 'Closed')], default='open')
 
-# class SaleItem(models.Model):
-#     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="items")
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-#     quantity = models.IntegerField()
-#     price = models.DecimalField(max_digits=10, decimal_places=2)
 
-#     @property
-#     def subtotal(self):
-#         return self.quantity * self.price
 
 class SaleItem(models.Model):
     sale = models.ForeignKey(
@@ -300,6 +302,7 @@ class SaleItem(models.Model):
     )
 
     # Generic relation
+    department = models.CharField(max_length=20, choices=[('bar', 'Bar'), ('lnk', 'LNK'), ('kitchen', 'Kitchen'), ('rooms', 'Rooms')], default='bar')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True,blank=True)
     product = GenericForeignKey('content_type', 'object_id')

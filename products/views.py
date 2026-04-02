@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Sum,Q
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden,HttpResponse
 from django.contrib import messages
 from django.forms import modelformset_factory
 from django.utils.dateparse import parse_date
@@ -41,64 +41,68 @@ def pos_dashboard(request):
     elif user.department == 'kitchen':
         products = KitchenStockSheet.objects.filter(department='kitchen')
     elif user.department == 'rooms':
-        products = LNKStockSheet.objects.filter(department='rooms')
+        rooms = Room.objects.filter(department='rooms')
+    elif user.department == 'lnk':
+        products = LNKStockSheet.objects.filter(department='lnk')
     else:
         return HttpResponseForbidden("Invalid department")
     return render(request, 'pos_dashboard.html', {'products': products})
 
+from django.contrib.contenttypes.models import ContentType
+
 @login_required(login_url='login')
 def pos(request):
     user = request.user
-
     today = timezone.now().date()
+
     if user.department == 'bar':
         products = BarStockSheet.objects.filter(opening_stock__gt=0, date=today)
-        all_dates = BarStockSheet.objects.values_list('date', flat=True)
-    elif user.department == 'kitchen':
-        products = KitchenStockSheet.objects.filter(opening_stock__gt=0, date=today)
-    elif user.department == 'rooms':
+        kitchen_products = KitchenStockSheet.objects.filter(opening_stock__gt=0, date=today)
+    elif user.department == 'lnk':
         products = LNKStockSheet.objects.filter(opening_stock__gt=0, date=today)
+        kitchen_products = []
     else:
         return HttpResponseForbidden("Invalid department")
 
-    rooms = Room.objects.filter(is_occupied=False)
-    for product in products:
-        print(f"Product: {product.date}, Opening Stock: {product.opening_stock}")  # Debugging line
+    rooms = Room.objects.all()
 
     if request.method == "POST":
         with transaction.atomic():
-            sale = Sale.objects.create()
+            sale = Sale.objects.create(sales_person=request.user)
 
-            for product in products:
-                qty = request.POST.get(f"product_{product.id}")
-                
+            for key, value in request.POST.items():
 
-                try:
-                    qty = int(qty)
-                except (TypeError, ValueError):
+                if not key.startswith("product_"):
                     continue
 
+                qty = int(value)
                 if qty <= 0:
                     continue
 
+                _, raw_id = key.split("product_")
+                dept, obj_id = raw_id.split("_")
+                obj_id = int(obj_id)
+
+                print(f"Received order for dept: {dept}, obj_id: {obj_id}, qty: {qty}")  # Debugging line
+                if user.department == "bar":
+                    product = BarStockSheet.objects.get(id=obj_id)
+                elif user.department == "kitchen":
+                    product = KitchenStockSheet.objects.get(id=obj_id)
+                elif user.department == "lnk":
+                    product = LNKStockSheet.objects.get(id=obj_id)
+                else:
+                    continue
+                print(f"Processing {product.item} with qty {qty}")  # Debugging line
                 if product.opening_stock < qty:
                     return HttpResponse(f"Not enough stock for {product.item}")
 
-                content_type = ContentType.objects.get_for_model(product)
-
                 SaleItem.objects.create(
                     sale=sale,
-                    content_type=content_type,
+                    content_type=ContentType.objects.get_for_model(product),
                     object_id=product.id,
                     quantity=qty,
                     price=product.rate
                 )
-
-                product.closing_stock-= qty
-                product.sold += qty
-                product.user = request.user
-
-                product.save()
 
             update_sale_total(sale)
 
@@ -106,14 +110,51 @@ def pos(request):
 
     return render(request, "pos.html", {
         "products": products,
+        "kitchen_products": kitchen_products,
         "rooms": rooms
     })
-
 
 @login_required(login_url='login')
 def receipt(request, sale_id):
     sale = Sale.objects.get(id=sale_id)
-    return render(request, "receipt.html", {"sale": sale})
+    print("Sale Items:", sale.items.all())  # Debugging line
+    
+    print("Sales person:", request.user)  # Debugging line
+    return render(request, "receipt.html", {"sale": sale,"sales_person": request.user})
+
+
+@login_required(login_url='login')
+def close_sale(request, sale_id):
+    sale = get_object_or_404(Sale, id=sale_id)
+
+    if sale.status == 'closed':
+        messages.warning(request, "Sale already closed!")
+        return redirect('bar_stock_page')
+
+    with transaction.atomic():
+
+        for item in sale.items.filter(department='bar'):
+
+            # Get actual product (BarStock / KitchenStock / etc)
+            product = item.product
+
+            qty = item.quantity
+
+            # Safety check
+            if product.closing_stock < qty:
+                return HttpResponse(f"Not enough stock for {product}")
+
+            # Update stock
+            product.closing_stock -= qty
+            product.sold += qty
+            product.user = request.user
+            product.save()
+
+        sale.status = 'closed'
+        sale.save()
+
+    messages.success(request, "Sale closed successfully!")
+    return redirect('bar_stock_page')
 
 
 
@@ -200,13 +241,20 @@ def bar_stock_page(request):
         page_number = request.GET.get('page')
         stocks = paginator.get_page(page_number)
 
+    sales = Sale.objects.all().order_by('-date')
+    sales_paginator = Paginator(sales, 10)  # 10 per page
+    sales_page = request.GET.get('page_sales')
+
+    sales = sales_paginator.get_page(sales_page)
+
     context = {
         'form': form,
         'stocks': stocks,
         'view': view,
         'report_summary': report_summary,
         'user_summary': user_summary,
-        'users':users
+        'users':users,
+        'sales': sales
     }
 
     return render(request, 'bar_stock.html', context)
@@ -371,8 +419,8 @@ def delete_lnk_stock(request, stock_id):
 @login_required(login_url='login')
 def generate_today_lnk_stock(request):
     if request.method == "POST":
-        # today = timezone.now().date()
-        today = '2026-03-28'
+        today = timezone.now().date()
+
         # print("today:", today)  # Debugging line
 
         # 🔹 Get latest stock per item (yesterday or last available)
