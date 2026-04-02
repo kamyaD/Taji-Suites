@@ -28,10 +28,11 @@
                     {% if user.role == 'admin' %}
                         <a href="{% url 'pos' %}" class="btn btn-outline-light mx-1 active">Products</a>
                     {% endif %}
-
-                    {% if user.department == 'lnk' %}
-                        <button class="btn btn-outline-light mx-1"
-                                onclick="filterDepartment('lnk')" id="btn-lnk">LNK</button>
+                    {% if user.department == 'lnk' and user.role == 'shop attendant' %}
+                        <a href="{% url 'pos' %}" class="btn btn-outline-light mx-1 active">Products</a>
+                        <a href="{% url 'lnk_stock_page' %}" class="btn btn-outline-light mx-1">
+                            LNK Stock
+                        </a>
                     {% endif %}
 
                     {% if user.department == 'bar' and user.role == 'waiter' %}

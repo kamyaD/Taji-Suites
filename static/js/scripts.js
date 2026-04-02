@@ -1,71 +1,68 @@
 let cart = {};
-    let total = 0;
+let total = 0;
 
-    function addToCart(id, name, price) {
-        if (!cart[id]) {
-            cart[id] = {item: name, rate: price, qty: 1};
-        } else {
-            cart[id].qty += 1;
-        }
-
-        renderCart();
-    }
-
-    function increaseQty(id) {
+function addToCart(id, name, price) {
+    if (!cart[id]) {
+        cart[id] = {item: name, rate: price, qty: 1};
+    } else {
         cart[id].qty += 1;
-        renderCart();
+    }
+    renderCart();
+}
+
+function increaseQty(id) {
+    cart[id].qty += 1;
+    renderCart();
+}
+
+function decreaseQty(id) {
+    cart[id].qty -= 1;
+
+    if (cart[id].qty <= 0) {
+        delete cart[id];
     }
 
-    function decreaseQty(id) {
-        cart[id].qty -= 1;
+    renderCart();
+}
 
-        if (cart[id].qty <= 0) {
-            delete cart[id]; // ❌ remove item
-        }
+function renderCart() {
+    let cartDiv = document.getElementById("cartItems");
+    cartDiv.innerHTML = "";
+    total = 0;
 
-        renderCart();
-    }
+    for (let id in cart) {
+        let item = cart[id];
+        let subtotal = item.qty * item.rate;
+        total += subtotal;
 
-    function renderCart() {
-        let cartDiv = document.getElementById("cartItems");
-        cartDiv.innerHTML = "";
-        total = 0;
-
-        for (let id in cart) {
-            let item = cart[id];
-
-            let subtotal = item.qty * item.rate;
-            total += subtotal;
-
-            cartDiv.innerHTML += `
-                <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
-
-                    <div>
-                        <strong>${item.item}</strong><br>
-                        <small>KES ${item.rate.toFixed(2)}</small>
-                    </div>
-
-                    <div class="d-flex align-items-center">
-                        <button type="button" class="btn btn-sm btn-danger" onclick="decreaseQty('${id}')">-</button>
-                        <span class="mx-2">${item.qty}</span>
-                        <button type="button" class="btn btn-sm btn-success" onclick="increaseQty('${id}')">+</button>
-                    </div>
-
-                    <div>
-                        <strong>KES ${subtotal.toFixed(2)}</strong>
-                    </div>
-
+        cartDiv.innerHTML += `
+            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                <div>
+                    <strong>${item.item}</strong><br>
+                    <small>KES ${item.rate.toFixed(2)}</small>
                 </div>
 
-                <input type="hidden" name="product_${id}" value="${item.qty}">
-            `;
-        }
+                <div class="d-flex align-items-center">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="decreaseQty('${id}')">-</button>
+                    <span class="mx-2">${item.qty}</span>
+                    <button type="button" class="btn btn-sm btn-success" onclick="increaseQty('${id}')">+</button>
+                </div>
 
-        document.getElementById("total").innerText = total.toFixed(2);
-    }   
+                <div>
+                    <strong>KES ${subtotal.toFixed(2)}</strong>
+                </div>
+            </div>
+
+            <input type="hidden" name="product_${id}" value="${item.qty}">
+        `;
+    }
+
+    document.getElementById("total").innerText = total.toFixed(2);
+}  
 
 let activeDept = 'lnk'; 
 function filterDepartment(dept) {
+    console.log("Filtering by department:", dept); // Debugging line
     activeDept = dept;
 
     // Remove active from all buttons safely
@@ -85,16 +82,16 @@ function searchProducts() {
     filterAndSearch();
 }
 
-function filterAndSearch() {
+function searchProducts() {
     let input = document.getElementById('productSearch').value.toLowerCase();
-    let products = document.querySelectorAll('.product-item');
+
+    let activeTab = document.querySelector('.tab-pane.active');
+    let products = activeTab.querySelectorAll('.product-item');
 
     products.forEach(p => {
         let name = p.querySelector('h6').textContent.toLowerCase();
-        let category = p.dataset.category.toLowerCase();
-        let department = p.dataset.department;
+        let category = (p.dataset.category || "").toLowerCase();
 
-        // Show if matches search AND department
         if (name.includes(input) || category.includes(input)) {
             p.style.display = "block";
         } else {

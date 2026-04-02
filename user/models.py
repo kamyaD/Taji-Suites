@@ -7,8 +7,8 @@ from django.db import models
 class User(AbstractUser):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
-        ('shop attendant', 'Shop Attendant'),
         ('supervisor', 'Supervisor'),
+        ('shop attendant', 'Shop Attendant'),
         ('waiter', 'waiter'),
         ('chef', 'Chef'),
     ]
@@ -23,7 +23,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     department = models.CharField(
         max_length=20,
-        choices=[('bar', 'Bar'), ('kitchen', 'Kitchen'), ('rooms', 'Rooms'),('all','All')],
+        choices=[('bar', 'Bar'), ('lnk', 'LNK'),('kitchen', 'Kitchen'), ('rooms', 'Rooms'),('all','All')],
         blank=True,
         null=True
     )
