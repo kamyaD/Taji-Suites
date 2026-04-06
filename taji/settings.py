@@ -163,3 +163,6 @@ MPESA_CONSUMER_SECRET = "T1z1tgpPxkRmEplgSLF0OawRvqxNzChzMvn4Xjdz7AspLA3uYssOAxq
 MPESA_SHORTCODE = "174379"  # sandbox
 MPESA_PASSKEY = "bfb279f97cf4cda6ad26750e84812081a465c3a0b4d9d0c137a3e2a5c6b1e0e1"
 MPESA_CALLBACK_URL = "https://maynard-unrefracted-korey.ngrok-free.dev/mpesa/callback/"
+
+# SESSION_COOKIE_AGE = 50000  # 30 seconds
+# SESSION_SAVE_EVERY_REQUEST = True

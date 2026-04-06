@@ -5,44 +5,55 @@
     <title>Receipt</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+
         body {
             background: #f4f6f9;
+            font-family: monospace; /* typical POS font */
+            font-size: 12px;         /* smaller overall font */
         }
 
         .receipt-box {
-            max-width: 400px;
+            max-width: 250px;       /* narrow for POS printer */
             margin: auto;
             background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            font-size: 14px;
+            padding: 5px 10px;      /* smaller padding */
+            border-radius: 0;       /* remove round corners for printing */
+            box-shadow: none;
         }
 
         .divider {
-            border-top: 1px dashed #ccc;
-            margin: 10px 0;
+            border-top: 1px dashed #000; /* use solid black dashed line for POS */
+            margin: 5px 0;
         }
 
         .total {
-            font-size: 18px;
+            font-size: 14px; /* smaller total font */
             font-weight: bold;
         }
 
-        /* 👇 IMPORTANT */
-        .page-break {
-            page-break-before: always;
+        /* Tables for POS */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
         }
 
+        th, td {
+            padding: 2px 0; /* minimal padding */
+        }
+
+        /* Headings */
+        .receipt-header h2, .receipt-header h4, .receipt-header h6 {
+            margin: 2px 0;
+            font-size: 12px; /* smaller */
+        }
+
+        /* Hide buttons in print */
         @media print {
             body { background: white; }
             .no-print { display: none; }
-
-            .receipt-box {
-                box-shadow: none;
-                border-radius: 0;
-            }
         }
+
     </style>
 </head>
 <body>
@@ -102,7 +113,7 @@
 
     <!-- FOOTER -->
     <p class="text-center">
-        <center><h4>PAYBILL:880100</h4></center>
+        <center><h6>PAYBILL:880100</h6></center>
         <center><h4>ACCOUNT No:937883</h4></center>
         <center><small>Served by: {{ sales_person.username }}</small></center>
     </p>
@@ -112,10 +123,10 @@
         <button onclick="window.print()" class="btn btn-dark btn-sm">
             Print Receipt
         </button>
-        {% if sale.department == 'lnk' %}
+        {% if sale.sales_person.department == 'lnk' %}
             <a href="{% url 'lnk_stock_page' %}" class="btn btn-secondary btn-sm">Back to Home</a>
         {% endif %}
-        {% if sale.department == 'bar' %}
+        {% if sale.sales_person.department == 'bar' %}
             <a href="{% url 'bar_stock_page' %}" class="btn btn-secondary btn-sm">Back to Home</a>
         {% endif %}
     </div>

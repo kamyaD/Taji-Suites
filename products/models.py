@@ -47,7 +47,7 @@ class BarStockSheet(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     item = models.CharField(max_length=100)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    opening_stock = models.IntegerField(blank=True, null=True)
+    opening_stock = models.IntegerField(blank=True, null=True, default=0)
     add = models.IntegerField(blank=True, null=True, default=0)
     total = models.IntegerField(editable=False, null=True, blank=True)
     closing_stock = models.IntegerField(editable=False, null=True, blank=True)

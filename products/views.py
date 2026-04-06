@@ -58,6 +58,7 @@ def pos(request):
     if user.department == 'bar':
         products = BarStockSheet.objects.filter(opening_stock__gt=0, date=today)
         kitchen_products = KitchenStockSheet.objects.filter(opening_stock__gt=0, date=today)
+        categories = [choice[0] for choice in BarStockSheet.CATEGORY_CHOICES] 
     elif user.department == 'lnk':
         products = LNKStockSheet.objects.filter(opening_stock__gt=0, date=today)
         kitchen_products = []
@@ -119,14 +120,23 @@ def pos(request):
                         quantity=qty,
                         price=product.rate
                     )
+                    if user.department == "lnk":
+                        product.opening_stock -= qty
+                        product.sold += qty
+                        product.user = request.user
+                        product.save()
+
+
 
             update_sale_total(sale)
 
         return redirect("receipt", sale_id=sale.id)
+    # print("Rendering POS with products:", products.category)  # Debugging line
     return render(request, "pos.html", {
         "products": products,
         "kitchen_products": kitchen_products,
-        "rooms": rooms
+        "rooms": rooms,
+        "categories": categories if user.department == 'bar' else None
     })
 
 @login_required(login_url='login')
