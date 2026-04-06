@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}POS{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- LEFT SIDE -->
+        <div class="col-md-8 p-3">
+
+            <input type="text" id="productSearch"
+                   class="form-control form-control-sm mb-3"
+                   placeholder="Search products..."
+                   onkeyup="searchProducts()">
+
+            <div class="card h-100">
+                <div class="card-header bg-secondary text-white">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        {% if user.department == 'bar' %}
+                            <li class="nav-item">
+                                <button class="nav-link active"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#bar">
+                                    Bar
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#kitchen">
+                                    Kitchen
+                                </button>
+                            </li>
+                        {% endif %}
+                        {% if user.department == 'lnk' %}
+                            <li class="nav-item">
+                                <button class="nav-link active"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#bar">
+                                    Products
+                                </button>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="card-body">
+                    <div class="tab-content">
+
+                        <!-- BAR -->
+                        <div class="tab-pane fade show active" id="bar">
+                            <div class="row g-3">
+                                {% for product in products %}
+                                <div class="col-md-3 product-item"
+                                     data-category="{{ product.category }}"
+                                     data-department="bar">
+
+                                    <div class="card product-card h-100 shadow-sm"
+                                         onclick="addToCart('bar_{{ product.id }}', '{{ product.item }}', {{ product.rate }})">
+
+                                        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/place_holder.jpeg' %}{% endif %}"
+                                             class="card-img-top product-img">
+
+                                        <div class="card-body text-center">
+                                            <h6>{{ product.item }}</h6>
+                                            <small class="text-muted">{{ product.closing_stock }} in stock</small><br>
+                                            <strong>KES {{ product.rate }}</strong>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- KITCHEN -->
+                        <div class="tab-pane fade" id="kitchen">
+                            <div class="row g-3">
+                                {% for food in kitchen_products %}
+                                <div class="col-md-3 product-item"
+                                     data-category="{{ food.category }}"
+                                     data-department="kitchen">
+
+                                    <div class="card product-card h-100 shadow-sm"
+                                         onclick="addToCart('kitchen_{{ food.id }}', '{{ food.item }}', {{ food.rate }})">
+
+                                        <img src="{% if food.image %}{{ food.image.url }}{% else %}{% static 'img/place_holder.jpeg' %}{% endif %}"
+                                             class="card-img-top product-img">
+
+                                        <div class="card-body text-center">
+                                            <h6>{{ food.item }}</h6>
+                                            <small class="text-muted">{{ food.closing_stock }} in stock</small><br>
+                                            <strong>KES {{ food.rate }}</strong>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="col-md-4 p-3">
+            <div class="cart-panel bg-white p-3 shadow h-100">
+
+                <h4>🧾 Cart</h4>
+                <hr>
+
+                <form method="POST" id="saleForm">
+                    {% csrf_token %}
+                    <div id="cartItems"></div>
+
+                    <hr>
+                    <h5>Total: KES <span id="total">0</span></h5>
+
+                    <button class="btn btn-success w-100 mt-3">
+                        Complete Sale
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

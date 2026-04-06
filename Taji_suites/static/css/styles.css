@@ -1,0 +1,42 @@
+body {
+    background-color: #f4f6f9;
+}
+
+.product-card {
+    border-radius: 15px;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: scale(1.05);
+}
+
+.product-img {
+    height: 120px;
+    object-fit: cover;
+}
+
+.cart-panel {
+    height: 90vh;
+    overflow-y: auto;
+}
+
+.cart-item {
+    font-size: 14px;
+}
+
+.card-img-top {
+    height: 180px;
+    object-fit: cover;
+}
+
+.feature-card {
+    border: none;
+    border-radius: 12px;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    transition: 0.3s ease;
+}

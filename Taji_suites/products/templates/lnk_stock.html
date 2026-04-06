@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bar Stock{% endblock %}
+
+{% block content %}
+{% if messages %}
+    <div class="mt-2">
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="col-12 p-4">
+
+    <h3 class="mb-4">🍺 LNK Stock Management</h3>
+
+    <!-- 🔹 ADD FORM -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            Add Stock
+        </div>
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label>Item</label>
+                        {{ form.item }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label>Opening Stock</label>
+                        {{ form.opening_stock }}
+                    </div>
+                     <div class="col-md-4 mb-2">
+                        <label>Add</label>
+                        {{ form.add }}
+                    </div>   
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label>Sold</label>
+                        {{ form.sold }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label>Rate</label>
+                        {{ form.rate }}
+                    </div>
+
+                    
+                    <div class="col-md-4 mb-2">
+                        <label>Date</label>
+                        {{ form.date }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success mt-2">
+                    Save Stock
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- 🔹 STOCK TABLE -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            Stock Records
+        </div>
+        <div class="d-flex justify-content-between align-items-center flex-wrap p-3 gap-2">
+            <form method="POST" action="{% url 'generate_lnk_stock' %}" class="mb-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning"
+                    onclick="return confirm('Generate today\'s stock from yesterday?');">
+                    Generate Today's Stock
+                </button>
+            </form>
+            <form method="GET" class="mb-2 d-flex" role="search">
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ search_query }}"
+                    class="form-control me-2" 
+                    placeholder="Search item..."
+                >
+                <button class="btn btn-primary" type="submit">Search</button>
+
+                <a href="{% url 'lnk_stock_page' %}" class="btn btn-secondary ms-2">
+                    Reset
+                </a>
+            </form>
+        </div>
+        
+        
+        <div class="card-body table-responsive">
+
+            <table class="table table-bordered table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Item</th>
+                        <th>Opening</th>
+                        <th>Add</th>
+                        <th>Total</th>
+                        <th>Sold</th>
+                        <th>Closing</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                        <!-- <th>Cost</th>
+                        <th>Profit</th> -->
+                        <th>--</th>
+                        <th>--</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr>
+                        <td>{{ stock.date }}</td>
+                        <td>{{ stock.item }}</td>
+                        <td>{{ stock.opening_stock }}</td>
+                        <td>{{ stock.add }}</td>
+                        <td>{{ stock.total }}</td>
+                        <td>{{ stock.sold }}</td>
+                        <td>{{ stock.closing_stock }}</td>
+                        <td>{{ stock.rate }}</td>
+                        <td>{{ stock.amount }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-primary"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editStockModal"
+
+                                data-id="{{ stock.id }}"
+                                data-item="{{ stock.item }}"
+                                data-category="{{ stock.category }}"
+                                data-opening="{{ stock.opening_stock }}"
+                                data-add="{{ stock.add }}"
+                                data-sold="{{ stock.sold }}"
+                                data-rate="{{ stock.rate }}"
+                                data-cost="{{ stock.unit_cost }}"
+                                data-date="{{ stock.date|date:'Y-m-d' }}"
+                            >
+                                Edit
+                            </a>
+                        </td>
+                         <td>
+                            <a href="" class="btn btn-sm btn-danger"
+                                onclick="if(confirm('Are you sure you want to delete this record?')){ window.location.href='/delete-lnk-stock/{{ stock.id }}/'; }">
+                            Delete
+                            </a>
+                        </td>
+                        
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center">
+                            No stock records available
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+                    <!-- 🔹 Page Info -->
+            <div class="mb-2">
+                <small class="text-muted">
+                    Showing page {{ stocks.number }} of {{ stocks.paginator.num_pages }}
+                    (Total records: {{ stocks.paginator.count }})
+                </small>
+            </div>
+
+            <!-- 🔹 Pagination Buttons -->
+            <nav>
+                <ul class="pagination mb-0">
+
+                    {% if stocks.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">« First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ stocks.previous_page_number }}">‹ Prev</a>
+                        </li>
+                    {% endif %}
+
+                    <!-- Current Page -->
+                    <li class="page-item active">
+                        <span class="page-link">
+                            {{ stocks.number }}
+                        </span>
+                    </li>
+
+                    {% if stocks.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ stocks.next_page_number }}">Next ›</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ stocks.paginator.num_pages }}">Last »</a>
+                        </li>
+                    {% endif %}
+
+                </ul>
+            </nav>
+
+        </div>
+
+
+        </div>
+    </div>
+    <div class="modal fade" id="editStockModal" tabindex="-1" aria-labelledby="editStockModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editStockModalLabel">Edit Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" id="editStockForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="stock_id" id="editStockId">
+
+                        <div class="mb-3">
+                            <label for="editItem" class="form-label">Item</label>
+                            <input type="text" class="form-control" id="editItem" name="item" value="{{stoc.item}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editOpeningStock" class="form-label">Opening Stock</label>
+                            <input type="number" class="form-control" id="editOpeningStock" name="opening_stock">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAdd" class="form-label">Add</label>        
+                            <input type="number" class="form-control" id="editAdd" name="add">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSold" class="form-label">Sold</label>
+                            <input type="number" class="form-control" id="editSold" name="sold">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editRate" class="form-label">Rate</label>
+                            <input type="number" class="form-control" id="editRate" name="rate">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDate" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="editDate" name="date">
+                        </div>  
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const editButtons = document.querySelectorAll('[data-bs-target="#editStockModal"]');
+
+        editButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const stockId = this.dataset.id;
+
+                // SET FORM ACTION 👇
+                document.getElementById("editStockForm").action = `/edit-lnk-stock/${stockId}/`;
+
+                document.getElementById("editStockId").value = stockId;
+                document.getElementById("editItem").value = this.dataset.item;
+                // document.getElementById("editCategory").value = this.dataset.category;
+                document.getElementById("editOpeningStock").value = this.dataset.opening;
+                document.getElementById("editAdd").value = this.dataset.add;
+                document.getElementById("editSold").value = this.dataset.sold;
+                document.getElementById("editRate").value = this.dataset.rate;
+                // document.getElementById("editUnitCost").value = this.dataset.cost;
+                document.getElementById("editDate").value = this.dataset.date;
+            });
+        });
+    });
+</script>
+
+{% endblock %}
